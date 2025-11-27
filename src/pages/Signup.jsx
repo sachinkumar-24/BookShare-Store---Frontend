@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   createUserWithEmailAndPassword,
   signInWithPopup,
@@ -10,8 +10,22 @@ import { useNavigate, Link } from "react-router-dom";
 
 const Signup = () => {
   const navigate = useNavigate();
+
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [loading, setLoading] = useState(false);
+  const [coords, setCoords] = useState({ lat: 0, long: 0 });
+
+  useEffect(() => {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setCoords({
+          lat: pos.coords.latitude,
+          long: pos.coords.longitude,
+        });
+      },
+      () => console.log("Location permission denied")
+    );
+  }, []);
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -20,49 +34,57 @@ const Signup = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+
     try {
-      // Step 1: Firebase signup
+      // Firebase signup
       const userData = await createUserWithEmailAndPassword(
         auth,
         form.email,
         form.password
       );
 
-      // Step 2: Update Firebase display name
-      await updateProfile(userData.user, { displayName: form.name });
+      const user = userData.user;
 
-      // Step 3: Get Firebase token
-     const token = await user.getIdToken();
-await axios.post(
-  "https://bookshare-store-backend-1.onrender.com/api/users/",
-  {
-    name: user.displayName,
-    email: user.email,   // ✅ add this line
-    photoURL: user.photoURL,
-    location: { coordinates: [latitude, longitude] },
-  },
-  {
-    headers: { Authorization: `Bearer ${token}` },
-  }
-);
+      // Update Firebase profile name
+      await updateProfile(user, { displayName: form.name });
 
+      // Firebase token
+      const token = await user.getIdToken();
 
+      // Backend user create
+      const res = await axios.post(
+        "https://bookshare-store-backend-1.onrender.com/api/users/",
+        {
+          name: user.displayName,
+          email: user.email,
+          photoURL: user.photoURL,
+          location: {
+            coordinates: [coords.long, coords.lat], // longitude, latitude
+          },
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      // Save user + token
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(res.data.user));
 
       alert("Signup successful!");
       navigate("/dashboard");
     } catch (err) {
-      console.error("Signup Error:", err.message);
-      alert("Signup failed! Please check your info.");
+      console.error("Signup Error:", err);
+      alert(err.response?.data?.message || "Signup failed!");
     } finally {
       setLoading(false);
     }
   };
 
-  // ---------------- GOOGLE OAUTH SIGNUP ----------------
+  // ---------------- GOOGLE SIGNUP ----------------
   const handleGoogleSignup = async () => {
     setLoading(true);
+
     try {
       const result = await signInWithPopup(auth, googleProvider);
       const token = await result.user.getIdToken();
@@ -80,13 +102,13 @@ await axios.post(
       navigate("/dashboard");
     } catch (err) {
       console.error("Google Signup Error:", err.message);
-      alert("Google signup failed. Try again!");
+      alert("Google signup failed!");
     } finally {
       setLoading(false);
     }
   };
 
-  // ---------------- JSX ----------------
+  // ---------------- UI ----------------
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
       <div className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md">
@@ -102,25 +124,27 @@ await axios.post(
               name="name"
               value={form.name}
               onChange={handleChange}
-              className="border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500"
               required
             />
+
             <input
               type="email"
               placeholder="Email"
               name="email"
               value={form.email}
               onChange={handleChange}
-              className="border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500"
               required
             />
+
             <input
               type="password"
               placeholder="Password"
               name="password"
               value={form.password}
               onChange={handleChange}
-              className="border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500"
               required
             />
           </div>
@@ -149,10 +173,7 @@ await axios.post(
 
         <p className="text-center text-gray-600 mt-4">
           Already have an account?{" "}
-          <Link
-            to="/login"
-            className="text-blue-600 hover:underline font-medium"
-          >
+          <Link to="/login" className="text-blue-600 font-medium hover:underline">
             Login
           </Link>
         </p>
