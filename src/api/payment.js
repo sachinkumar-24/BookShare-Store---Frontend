@@ -1,4 +1,4 @@
-const API_BASE = "http://localhost:5000/api";
+const API_BASE = "https://bookshare-store-backend-1.onrender.com/api";
 
 export const fetchBooks = async () => {
   const res = await fetch(`${API_BASE}/books`);
