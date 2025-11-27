@@ -12,43 +12,53 @@ const Login = () => {
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
 
-
+  // ---------------- EMAIL + PASSWORD LOGIN ----------------
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-
+      // 1️⃣ Firebase login
       const userData = await signInWithEmailAndPassword(
         auth,
         form.email,
         form.password
       );
-      const token = await userData.user.getIdToken();
 
- 
+      const user = userData.user;
+
+      // 2️⃣ Firebase token
+      const token = await user.getIdToken();
+
+      // 3️⃣ Backend login
       const res = await axios.post(
         "https://bookshare-store-backend-1.onrender.com/api/users/login",
         {},
-        { headers: { Authorization: `Bearer ${token}` } }
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
 
+      // 4️⃣ Save in local storage
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(res.data.user));
 
       alert("Login successful!");
-      navigate("/books"); 
+      navigate("/dashboard");
     } catch (err) {
-      console.error("Login Error:", err.message);
-      alert("Invalid email or password. Try again!");
+      console.error("Login Error:", err);
+      alert(err.response?.data?.message || "Invalid email or password!");
     } finally {
       setLoading(false);
     }
   };
 
-
+  // ---------------- GOOGLE LOGIN ----------------
   const handleGoogleLogin = async () => {
     setLoading(true);
+
     try {
       const result = await signInWithPopup(auth, googleProvider);
       const token = await result.user.getIdToken();
@@ -56,7 +66,11 @@ const Login = () => {
       const res = await axios.post(
         "https://bookshare-store-backend-1.onrender.com/api/users/login",
         {},
-        { headers: { Authorization: `Bearer ${token}` } }
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
 
       localStorage.setItem("token", token);
@@ -65,14 +79,14 @@ const Login = () => {
       alert("Google login successful!");
       navigate("/dashboard");
     } catch (err) {
-      console.error("Google Login Error:", err.message);
-      alert("Google login failed. Try again!");
+      console.error("Google Login Error:", err);
+      alert("Google login failed!");
     } finally {
       setLoading(false);
     }
   };
 
-
+  // ---------------- UI ----------------
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
       <div className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md">
@@ -88,16 +102,17 @@ const Login = () => {
               name="email"
               value={form.email}
               onChange={handleChange}
-              className="border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500"
               required
             />
+
             <input
               type="password"
               placeholder="Password"
               name="password"
               value={form.password}
               onChange={handleChange}
-              className="border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500"
               required
             />
           </div>
@@ -126,10 +141,7 @@ const Login = () => {
 
         <p className="text-center text-gray-600 mt-4">
           Don’t have an account?{" "}
-          <Link
-            to="/signup"
-            className="text-blue-600 hover:underline font-medium"
-          >
+          <Link to="/signup" className="text-blue-600 font-medium hover:underline">
             Create one
           </Link>
         </p>
