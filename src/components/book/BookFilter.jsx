@@ -55,7 +55,7 @@ export default function BookFilter() {
         params.append("lng", coords.lng);
       }
 
-      const res = await axios.get(`http://localhost:5000/api/books?${params}`);
+      const res = await axios.get(`https://bookshare-store-backend-1.onrender.com/api/books?${params}`);
       setBooks(res.data || []);
     } catch (err) {
       console.error("Error fetching books:", err);
@@ -107,7 +107,7 @@ export default function BookFilter() {
       if (!token) return toast.error("Please login to use wishlist ❤️");
 
       const res = await axios.post(
-        "http://localhost:5000/api/wishlist/toggle",
+        "https://bookshare-store-backend-1.onrender.com/api/wishlist/toggle",
         { bookId },
         { headers: { Authorization: `Bearer ${token}` } }
       );

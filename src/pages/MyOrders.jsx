@@ -13,7 +13,7 @@ export default function MyOrders() {
         const token = localStorage.getItem("token");
         console.log(token);
 
-        const { data } = await axios.get("http://localhost:5000/api/purchases/my", {
+        const { data } = await axios.get("https://bookshare-store-backend-1.onrender.com/api/purchases/my", {
           headers: { Authorization: `Bearer ${token}` },
         });
         console.log(data);
@@ -41,7 +41,7 @@ export default function MyOrders() {
       const token = localStorage.getItem("token");
 
       const response = await axios.get(
-        `http://localhost:5000/api/purchases/invoice/${purchaseId}`,
+        `https://bookshare-store-backend-1.onrender.com/api/purchases/invoice/${purchaseId}`,
         {
           headers: { Authorization: `Bearer ${token}` },
           responseType: "blob", // IMPORTANT: PDF

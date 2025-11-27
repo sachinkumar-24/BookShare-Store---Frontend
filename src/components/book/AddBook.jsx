@@ -18,7 +18,7 @@ export default function AddBook({ onBookAdded }) {
   const [loading, setLoading] = useState(false);
 
   // Backend base URL from .env (important)
-  const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
+  const API_BASE = import.meta.env.VITE_API_BASE_URL || "https://bookshare-store-backend-1.onrender.com/api";
 
   // Capture user's location
   const handleLocation = () => {

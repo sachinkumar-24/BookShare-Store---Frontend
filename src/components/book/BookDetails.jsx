@@ -24,7 +24,7 @@ export default function BookDetails() {
   useEffect(() => {
     const fetchBook = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/api/books/${id}`);
+        const res = await axios.get(`https://bookshare-store-backend-1.onrender.com/api/books/${id}`);
         setBook(res.data);
       } catch (err) {
         toast.error("Failed to load book details");
@@ -40,7 +40,7 @@ export default function BookDetails() {
     const checkWishlist = async () => {
       try {
         const token = await getToken();
-        const res = await axios.get("http://localhost:5000/api/wishlist", {
+        const res = await axios.get("https://bookshare-store-backend-1.onrender.com/api/wishlist", {
           headers: { Authorization: `Bearer ${token}` },
         });
         const wishlist = res.data.wishlist || [];
@@ -58,7 +58,7 @@ export default function BookDetails() {
     try {
       const token = await getToken();
       const res = await axios.post(
-        "http://localhost:5000/api/wishlist/toggle",
+        "https://bookshare-store-backend-1.onrender.com/api/wishlist/toggle",
         { bookId: id },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -83,7 +83,7 @@ export default function BookDetails() {
       console.log(book);
       
       const res = await axios.post(
-        "http://localhost:5000/api/payment/create-order",
+        "https://bookshare-store-backend-1.onrender.com/api/payment/create-order",
         { amount: book.price, bookId: book._id },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -98,7 +98,7 @@ export default function BookDetails() {
         order_id: order.id,
         handler: async (response) => {
           const verify = await axios.post(
-            "http://localhost:5000/api/payment/verify",
+            "https://bookshare-store-backend-1.onrender.com/api/payment/verify",
             response,
             { headers: { Authorization: `Bearer ${token}` } }
           );

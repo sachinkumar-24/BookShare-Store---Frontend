@@ -34,7 +34,7 @@ const Signup = () => {
       // Step 3: Get Firebase token
      const token = await user.getIdToken();
 await axios.post(
-  "http://localhost:5000/api/users/",
+  "https://bookshare-store-backend-1.onrender.com/api/users/",
   {
     name: user.displayName,
     email: user.email,   // ✅ add this line
@@ -68,7 +68,7 @@ await axios.post(
       const token = await result.user.getIdToken();
 
       const res = await axios.post(
-        "http://localhost:5000/api/users/",
+        "https://bookshare-store-backend-1.onrender.com/api/users/",
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );

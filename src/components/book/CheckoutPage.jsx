@@ -10,7 +10,7 @@ export default function RazorpayCheckout({ book }) {
 
       // Step 1️⃣: Create Razorpay Order on backend
       const { data } = await axios.post(
-        "http://localhost:5000/api/payment/create-order",
+        "https://bookshare-store-backend-1.onrender.com/api/payment/create-order",
         { amount, bookId: book._id },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -31,7 +31,7 @@ export default function RazorpayCheckout({ book }) {
           try {
             // Step 3️⃣: Verify payment on backend
             const verifyRes = await axios.post(
-              "http://localhost:5000/api/payment/verify-payment",
+              "https://bookshare-store-backend-1.onrender.com/api/payment/verify-payment",
               {
                 razorpay_order_id: response.razorpay_order_id,
                 razorpay_payment_id: response.razorpay_payment_id,
