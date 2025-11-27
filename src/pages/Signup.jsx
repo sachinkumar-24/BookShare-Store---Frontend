@@ -16,6 +16,11 @@ const Signup = () => {
   const [coords, setCoords] = useState({ lat: 0, long: 0 });
 
   useEffect(() => {
+    if (!navigator.geolocation) {
+      console.log("Geolocation not supported");
+      return;
+    }
+
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         setCoords({
@@ -23,7 +28,9 @@ const Signup = () => {
           long: pos.coords.longitude,
         });
       },
-      () => console.log("Location permission denied")
+      (err) => {
+        console.log("Location permission denied or error:", err.message);
+      }
     );
   }, []);
 
@@ -36,7 +43,7 @@ const Signup = () => {
     setLoading(true);
 
     try {
-      // Firebase signup
+      // 1️⃣ Firebase signup
       const userData = await createUserWithEmailAndPassword(
         auth,
         form.email,
@@ -45,13 +52,13 @@ const Signup = () => {
 
       const user = userData.user;
 
-      // Update Firebase profile name
+      // 2️⃣ Update Firebase profile name
       await updateProfile(user, { displayName: form.name });
 
-      // Firebase token
+      // 3️⃣ Firebase token
       const token = await user.getIdToken();
 
-      // Backend user create
+      // 4️⃣ Backend user create (GeoJSON compatible location)
       const res = await axios.post(
         "https://bookshare-store-backend-1.onrender.com/api/users/",
         {
@@ -59,7 +66,8 @@ const Signup = () => {
           email: user.email,
           photoURL: user.photoURL,
           location: {
-            coordinates: [coords.long, coords.lat], // longitude, latitude
+            type: "Point", // ✅ IMPORTANT for Mongo GeoJSON
+            coordinates: [coords.long, coords.lat], // [longitude, latitude]
           },
         },
         {
@@ -67,7 +75,7 @@ const Signup = () => {
         }
       );
 
-      // Save user + token
+      // 5️⃣ Save user + token
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(res.data.user));
 
@@ -173,7 +181,10 @@ const Signup = () => {
 
         <p className="text-center text-gray-600 mt-4">
           Already have an account?{" "}
-          <Link to="/login" className="text-blue-600 font-medium hover:underline">
+          <Link
+            to="/login"
+            className="text-blue-600 font-medium hover:underline"
+          >
             Login
           </Link>
         </p>
