@@ -46,7 +46,7 @@ const Login = () => {
       localStorage.setItem("user", JSON.stringify(res.data.user));
 
       alert("Login successful!");
-      navigate("/dashboard");
+      navigate("/");
     } catch (err) {
       console.error("Login Error:", err);
       alert(err.response?.data?.message || "Invalid email or password!");
@@ -77,7 +77,7 @@ const Login = () => {
       localStorage.setItem("user", JSON.stringify(res.data.user));
 
       alert("Google login successful!");
-      navigate("/dashboard");
+      navigate("/");
     } catch (err) {
       console.error("Google Login Error:", err);
       alert("Google login failed!");

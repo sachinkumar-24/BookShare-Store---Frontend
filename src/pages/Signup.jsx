@@ -80,7 +80,7 @@ const Signup = () => {
       localStorage.setItem("user", JSON.stringify(res.data.user));
 
       alert("Signup successful!");
-      navigate("/dashboard");
+      navigate("/");
     } catch (err) {
       console.error("Signup Error:", err);
       alert(err.response?.data?.message || "Signup failed!");
@@ -107,7 +107,7 @@ const Signup = () => {
       localStorage.setItem("user", JSON.stringify(res.data.user));
 
       alert("Google signup successful!");
-      navigate("/dashboard");
+      navigate("/");
     } catch (err) {
       console.error("Google Signup Error:", err.message);
       alert("Google signup failed!");
